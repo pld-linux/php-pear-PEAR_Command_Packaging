@@ -21,7 +21,7 @@ BuildArch:	@arch@
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # exclude optional dependencies
-#define		_noautoreq	'pear(XML/Beautifier/.*)'
+%define		_noautoreq	@optional@
 
 %description
 @description@
@@ -65,7 +65,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc install.log optional-packages.txt
-%doc @doc_files@
+@doc_files@
 %{php_pear_dir}/.registry/*.reg
 %{php_pear_dir}/%{_class}/*.php
 
