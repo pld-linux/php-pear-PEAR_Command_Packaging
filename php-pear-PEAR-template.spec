@@ -17,6 +17,9 @@ URL:		http://@master_server@/package/@package@
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 Requires:	php-pear
 @extra_headers@
+%if !@have_tests@
+Obsoletes:	%{name}-tests
+%endif
 BuildArch:	@arch@
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -57,20 +60,26 @@ install -d $RPM_BUILD_ROOT%{php_pear_dir}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if @have_optional_deps@
 %post
 if [ -f %{_docdir}/%{name}-%{version}/optional-packages.txt ]; then
 	cat %{_docdir}/%{name}-%{version}/optional-packages.txt
 fi
+%endif
 
 %files
 %defattr(644,root,root,755)
 %doc install.log optional-packages.txt
+%if @have_optional_deps@
+%doc optional-packages.txt
+%endif
 @doc_files@
 %{php_pear_dir}/.registry/*.reg
-%{php_pear_dir}/%{_class}/*.php
+@files@
+@data_files@
 
-%{php_pear_dir}/data/%{_pearname}
-
+%if @have_tests@
 %files tests
 %defattr(644,root,root,755)
-%{php_pear_dir}/tests/*
+@test_files@
+%endif
