@@ -16,8 +16,8 @@ Source0:	http://@master_server@/get/%{_pearname}-%{version}.tgz
 URL:		http://@master_server@/package/@package@
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 Requires:	php-pear
+@extra_headers@
 BuildArch:	@arch@
-# @extra_headers@
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # exclude optional dependencies
