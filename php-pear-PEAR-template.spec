@@ -23,8 +23,10 @@ Obsoletes:	%{name}-tests
 BuildArch:	@arch@
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%if @have_optional_deps@
 # exclude optional dependencies
 %define		_noautoreq	@optional@
+%endif
 
 %description
 @description@
