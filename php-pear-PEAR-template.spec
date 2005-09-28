@@ -71,7 +71,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc install.log optional-packages.txt
+%doc install.log
 %if @have_optional_deps@
 %doc optional-packages.txt
 %endif
