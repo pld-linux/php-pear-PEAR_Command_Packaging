@@ -5,7 +5,7 @@
 %define		_pearname	@package@
 
 Summary:	%{_pearname} - @summary@
-Summary(pl):	%{_pearname} -
+#Summary(pl):	%{_pearname} -
 Name:		php-pear-%{_pearname}
 Version:	@version@
 Release:	1
@@ -33,10 +33,10 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 In PEAR status of this package is: %{_status}.
 
-%description -l pl
-...
-
-Ta klasa ma w PEAR status: %{_status}.
+#%description -l pl
+#...
+#
+#Ta klasa ma w PEAR status: %{_status}.
 
 %package tests
 Summary:	Tests for PEAR::%{_pearname}
