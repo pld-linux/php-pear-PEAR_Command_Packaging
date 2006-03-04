@@ -5,6 +5,7 @@
 %define		_pearname	PEAR_Command_Packaging
 
 Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
+Summary(pl):	%{_pearname} - polecenie make-rpm-spec do zarz±dzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{_pearname}
 Version:	0.1.0
 Release:	0.1
@@ -34,6 +35,23 @@ Enhanced features over the original PEAR "makerpm" command include:
   packages
 
 In PEAR status of this package is: %{_status}.
+
+%description -l pl
+To polecenie to ulepszona implementacja standardowego polecenia
+makerpm. Zawiera kilka rozszerzeñ czyni±cych j± du¿o bardziej
+elastycznym. W przysz³o¶ci mog± byæ dodane podobne funkcje dla innych
+zewnêtrznych mechanizmów pakietów.
+
+Rozszerzone mo¿liwo¶ci w stosunku do oryginalnego polecenia PEAR-a
+"makerpm" obejmuj±:
+- mo¿liwo¶æ definiowania pola Release z linii poleceñ
+- bardziej zaawansowane dostosowywanie nazwy generowanego pakietu
+- dodawanie wirtualnych Provides/Requires o innym formacie ni¿ format
+  nazwy pakietu
+- próbê inteligentnego rozró¿nienia miêdzy projektami PEAR a PECL przy
+  generowaniu pakietów
+
+Ta klasa ma w PEAR status: %{_status}.
 
 %prep
 %pear_package_setup
