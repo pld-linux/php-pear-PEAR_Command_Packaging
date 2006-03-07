@@ -14,6 +14,7 @@ Group:		Development/Languages/PHP
 Source0:	http://@master_server@/get/%{_pearname}-%{version}.tgz
 # Source0-md5:	-
 URL:		http://@master_server@/package/@package@/
+BuildRequires:	php-pear-PEAR
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 Requires:	php-pear
 @extra_headers@
