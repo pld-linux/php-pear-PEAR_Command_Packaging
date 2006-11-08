@@ -1,5 +1,5 @@
---- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:30:48.906860547 +0200
-+++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:32:57.349746042 +0200
+--- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:32:57.349746042 +0200
++++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:46:50.568461090 +0200
 @@ -98,7 +98,7 @@
      var $output;
      
@@ -139,7 +139,7 @@
          
          if ($srcfiles > 0) {
              require_once 'OS/Guess.php';
-@@ -332,6 +343,11 @@
+@@ -332,11 +343,27 @@
          $info['version'] = $pf->getVersion();
          $info['release_license'] = $pf->getLicense();
          $info['release_state'] = $pf->getState();
@@ -151,7 +151,47 @@
          if ($pf->getDeps()) {
              if ($pf->getPackagexmlVersion() == '1.0') {
                  $requires = $conflicts = array();
-@@ -381,10 +397,14 @@
+                 foreach ($pf->getDeps() as $dep) {
+                     if (isset($dep['optional']) && $dep['optional'] == 'yes') {
++                        if ($dep['type'] == 'ext') {
++                            $info['optional-ext'][] = 'php-' . $dep['name'];
++                        } else {
++                            if ($dep['type'] == 'php') {
++                                # this doesn't make much sense, so ignore
++                                #$info['optional-php'][] = 'php-common';
++                            } else {
++                                $info['optional'] .= "'pear(". str_replace('_', '/', $dep['name']) . ".*)' ";
++                                $info['optional-pkg'][] = 'php-pear-'. $dep['name'];
++                            }
++                        }
+                         continue;
+                     }
+                     
+@@ -368,6 +395,13 @@
+                         'le' => '<=',
+                         'eq' => '=',
+                     );
++
++                    // known rpm epoches
++                    $epoches = array(
++                        'php-common' => 3,
++                        'php-pear-PEAR' => 1,
++                    );
++
+                     if ($dep['rel'] == 'has') {
+                         // We use $package as the index to the $requires array to de-duplicate deps.
+                         // Note that in the case of duplicate deps, versioned deps will "win" - see several lines down.
+@@ -375,16 +409,22 @@
+                     } elseif ($dep['rel'] == 'not') {
+                         $conflicts[] = $package;
+                     } elseif ($dep['rel'] == 'ne') {
+-                        $conflicts[] = $package . ' = ' . $dep['version'];
++                        $epoch = isset($epoches[$package]) ? ($epoches[$package] . ':') : '';
++                        $conflicts[] = $package . ' = ' . $epoch . $dep['version'];
+                     } elseif (isset($trans[$dep['rel']])) {
+-                        $requires[$package] = $package . ' ' . $trans[$dep['rel']] . ' ' . $dep['version'];
++                        $epoch = isset($epoches[$package]) ? ($epoches[$package] . ':') : '';
++                        $requires[$package] = $package . ' ' . $trans[$dep['rel']] . ' ' . $epoch . $dep['version'];
                      }
                  }
                  if (count($requires)) {
@@ -168,3 +208,67 @@
                  }
              } else {
                  $info['package2xml'] = '2'; // tell the spec to use package2.xml
+@@ -515,18 +555,55 @@
+                         $requires[$info['pear_rpm_name']] = $info['pear_rpm_name'] . ' >= ' .
+                             $deps['required']['pearinstaller']['min'];
+                     }
+-                    if (count($requires)) {
+-                        $info['extra_headers'] .= 'Requires: ' . implode(', ', $requires) . "\n";
+-                    }
+-                    if (count($conflicts)) {
+-                        $info['extra_headers'] .= 'Conflicts: ' . implode(', ', $conflicts) . "\n";
+-                    }
++					if (count($requires)) {
++						foreach ($requires as $dep) {
++							$info['extra_headers'] .= "Requires:\t" . $dep . "\n";
++						}
++					}
++					if (count($conflicts)) {
++						foreach ($conflicts as $dep) {
++							$info['extra_headers'] .= "Conflicts:\t" . $dep . "\n";
++						}
++					}
+                 }
+-            }
+-        }
++
++               if (isset($deps['optional']['package'])) {
++                   $a = $deps['optional']['package'];
++                   foreach ((isset($a[0]) ? $a : array($a)) as $dep) {
++                       $info['optional'] .= "'pear(". str_replace('_', '/', $dep['name']) . ".*)' ";
++                       $info['optional-pkg'][] = 'php-pear-'. $dep['name'];
++                   }
++               }
++               if (isset($deps['optional']['extension'])) {
++                   $a = $deps['optional']['extension'];
++                   foreach (isset($a[0]) ? $a : array($a) as $dep) {
++                       $info['optional-ext'][] = 'php-' . $dep['name'];
++				   }
++			   }
++
++            } // use package v2
++        } // if getDeps
+ 
+         // remove the trailing newline
+         $info['extra_headers'] = trim($info['extra_headers']);
++        $info['optional'] = trim($info['optional']);
++        $info['have_optional_deps'] = (strlen($info['optional']) > 0) + 0;
++
++        $tmp = $info['optional-pkg'];
++        $info['optional-pkg'] = '';
++        if (count($tmp)) {
++            foreach ($tmp as $dep) {
++                $info['optional-pkg'] .= "Optional-pkg:\t" . $dep . "\n";
++            }
++        }
++        $tmp = $info['optional-ext'];
++        $info['optional-ext'] = '';
++        if (count($tmp)) {
++            foreach ($tmp as $dep) {
++                $info['optional-ext'] .= "Optional-ext:\t" . $dep . "\n";
++            }
++        }
++
+         if (function_exists('file_get_contents')) {
+             fclose($fp);
+             $spec_contents = preg_replace('/@([a-z0-9_-]+)@/e', '$info["\1"]',
