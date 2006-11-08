@@ -1,5 +1,5 @@
---- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:53:53.507954473 +0200
-+++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:57:35.522937986 +0200
+--- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:57:35.522937986 +0200
++++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 21:05:54.294127778 +0200
 @@ -98,7 +98,7 @@
      var $output;
      
@@ -18,7 +18,28 @@
  
      /**
       * PEAR_Command_Packaging constructor.
-@@ -234,17 +234,19 @@
+@@ -172,7 +172,8 @@
+         }
+         $reg = &$this->config->getRegistry();
+         $pkg = &$this->getPackageFile($this->config, $this->_debug);
+-        $pf = &$pkg->fromAnyFile($params[0], PEAR_VALIDATE_NORMAL);
++		$tarball = $params[0];
++        $pf = &$pkg->fromAnyFile($tarball, PEAR_VALIDATE_NORMAL);
+         if (PEAR::isError($pf)) {
+             $u = $pf->getUserinfo();
+             if (is_array($u)) {
+@@ -219,6 +220,10 @@
+         } else {
+             $info['release'] = '1';
+         }
++
++		// pld specific, need source md5
++		$info['tarball'] = $tarball;
++		$info['tarball_md5'] = md5(file_get_contents($tarball));
+         
+         // Work out the alias for the channel that this package is in
+         $info['possible_channel'] = '';
+@@ -234,17 +239,19 @@
          $info['doc_files'] = array();
          $info['doc_files_relocation_script'] = '';
          $info['doc_files_statement'] = '';
@@ -41,7 +62,7 @@
          }
          
          $srcfiles = 0;
-@@ -253,44 +255,49 @@
+@@ -253,44 +260,49 @@
                  continue;
              }
              $name = preg_replace('![/:\\\\]!', '/', $name);
@@ -128,7 +149,7 @@
          }
          
          $ndocs = count($info['doc_files']);
-@@ -305,6 +312,12 @@
+@@ -305,6 +317,12 @@
              $info['doc_files_statement'] = '%doc ' . $info['doc_files'];
              $info['doc_files_relocation_script'] = "mv %{buildroot}/docs .\n";
          }
@@ -141,7 +162,7 @@
          
          if ($srcfiles > 0) {
              require_once 'OS/Guess.php';
-@@ -332,11 +345,27 @@
+@@ -332,11 +350,27 @@
          $info['version'] = $pf->getVersion();
          $info['release_license'] = $pf->getLicense();
          $info['release_state'] = $pf->getState();
@@ -169,7 +190,7 @@
                          continue;
                      }
                      
-@@ -368,6 +397,13 @@
+@@ -368,6 +402,13 @@
                          'le' => '<=',
                          'eq' => '=',
                      );
@@ -183,7 +204,7 @@
                      if ($dep['rel'] == 'has') {
                          // We use $package as the index to the $requires array to de-duplicate deps.
                          // Note that in the case of duplicate deps, versioned deps will "win" - see several lines down.
-@@ -375,16 +411,22 @@
+@@ -375,16 +416,22 @@
                      } elseif ($dep['rel'] == 'not') {
                          $conflicts[] = $package;
                      } elseif ($dep['rel'] == 'ne') {
@@ -210,7 +231,7 @@
                  }
              } else {
                  $info['package2xml'] = '2'; // tell the spec to use package2.xml
-@@ -515,18 +557,60 @@
+@@ -515,18 +562,60 @@
                          $requires[$info['pear_rpm_name']] = $info['pear_rpm_name'] . ' >= ' .
                              $deps['required']['pearinstaller']['min'];
                      }
