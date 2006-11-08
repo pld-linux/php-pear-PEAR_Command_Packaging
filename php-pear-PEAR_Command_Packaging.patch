@@ -1,5 +1,5 @@
---- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:32:57.349746042 +0200
-+++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:46:50.568461090 +0200
+--- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:53:53.507954473 +0200
++++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:57:35.522937986 +0200
 @@ -98,7 +98,7 @@
      var $output;
      
@@ -128,10 +128,12 @@
          }
          
          $ndocs = count($info['doc_files']);
-@@ -305,6 +312,10 @@
+@@ -305,6 +312,12 @@
              $info['doc_files_statement'] = '%doc ' . $info['doc_files'];
              $info['doc_files_relocation_script'] = "mv %{buildroot}/docs .\n";
          }
++
++		$info['have_tests'] = count($info['test_files']);
 +
 +        $info['files'] = count($info['files']) > 0 ? join("\n", $info['files']) : '';
 +        $info['test_files'] = count($info['test_files']) > 0 ? join("\n", $info['test_files']) : '';
@@ -139,7 +141,7 @@
          
          if ($srcfiles > 0) {
              require_once 'OS/Guess.php';
-@@ -332,11 +343,27 @@
+@@ -332,11 +345,27 @@
          $info['version'] = $pf->getVersion();
          $info['release_license'] = $pf->getLicense();
          $info['release_state'] = $pf->getState();
@@ -160,14 +162,14 @@
 +                                # this doesn't make much sense, so ignore
 +                                #$info['optional-php'][] = 'php-common';
 +                            } else {
-+                                $info['optional'] .= "'pear(". str_replace('_', '/', $dep['name']) . ".*)' ";
++                                $info['optional'][] = "'pear(". str_replace('_', '/', $dep['name']) . ".*)'";
 +                                $info['optional-pkg'][] = 'php-pear-'. $dep['name'];
 +                            }
 +                        }
                          continue;
                      }
                      
-@@ -368,6 +395,13 @@
+@@ -368,6 +397,13 @@
                          'le' => '<=',
                          'eq' => '=',
                      );
@@ -181,7 +183,7 @@
                      if ($dep['rel'] == 'has') {
                          // We use $package as the index to the $requires array to de-duplicate deps.
                          // Note that in the case of duplicate deps, versioned deps will "win" - see several lines down.
-@@ -375,16 +409,22 @@
+@@ -375,16 +411,22 @@
                      } elseif ($dep['rel'] == 'not') {
                          $conflicts[] = $package;
                      } elseif ($dep['rel'] == 'ne') {
@@ -208,7 +210,7 @@
                  }
              } else {
                  $info['package2xml'] = '2'; // tell the spec to use package2.xml
-@@ -515,18 +555,55 @@
+@@ -515,18 +557,60 @@
                          $requires[$info['pear_rpm_name']] = $info['pear_rpm_name'] . ' >= ' .
                              $deps['required']['pearinstaller']['min'];
                      }
@@ -235,7 +237,7 @@
 +               if (isset($deps['optional']['package'])) {
 +                   $a = $deps['optional']['package'];
 +                   foreach ((isset($a[0]) ? $a : array($a)) as $dep) {
-+                       $info['optional'] .= "'pear(". str_replace('_', '/', $dep['name']) . ".*)' ";
++                       $info['optional'][] = "'pear(". str_replace('_', '/', $dep['name']) . ".*)' ";
 +                       $info['optional-pkg'][] = 'php-pear-'. $dep['name'];
 +                   }
 +               }
@@ -251,23 +253,28 @@
  
          // remove the trailing newline
          $info['extra_headers'] = trim($info['extra_headers']);
-+        $info['optional'] = trim($info['optional']);
-+        $info['have_optional_deps'] = (strlen($info['optional']) > 0) + 0;
++        $info['have_optional_deps'] = count($info['optional']);
++        $info['optional'] = $info['have_optional_deps'] ? join(' ', $info['optional']) : '';
 +
-+        $tmp = $info['optional-pkg'];
-+        $info['optional-pkg'] = '';
-+        if (count($tmp)) {
++		if (isset($info['optional-pkg']) && count($info['optional-pkg'])) {
++			$tmp = $info['optional-pkg'];
++			$info['optional-pkg'] = '';
 +            foreach ($tmp as $dep) {
 +                $info['optional-pkg'] .= "Optional-pkg:\t" . $dep . "\n";
 +            }
-+        }
-+        $tmp = $info['optional-ext'];
-+        $info['optional-ext'] = '';
-+        if (count($tmp)) {
++		} else {
++			$info['optional-pkg'] = '';
++		}
++
++		if (isset($info['optional-ext']) && count($info['optional-ext'])) {
++			$tmp = $info['optional-ext'];
++			$info['optional-ext'] = '';
 +            foreach ($tmp as $dep) {
 +                $info['optional-ext'] .= "Optional-ext:\t" . $dep . "\n";
 +            }
-+        }
++		} else {
++			$info['optional-ext'] = '';
++		}
 +
          if (function_exists('file_get_contents')) {
              fclose($fp);
