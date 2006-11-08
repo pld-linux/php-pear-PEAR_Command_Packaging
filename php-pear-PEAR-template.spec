@@ -17,9 +17,6 @@ BuildRequires:	php-pear-PEAR
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 Requires:	php-pear
 @extra_headers@
-%if !@have_tests@
-Obsoletes:	%{name}-tests
-%endif
 BuildArch:	@arch@
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
