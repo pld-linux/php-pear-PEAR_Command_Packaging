@@ -3,12 +3,11 @@
 %define		_subclass	@subclass@
 %define		_status		@release_state@
 %define		_pearname	@package@
-
 Summary:	%{_pearname} - @summary@
 #Summary(pl):	%{_pearname} -
 Name:		php-pear-%{_pearname}
 Version:	@version@
-Release:	1
+Release:	0.1
 License:	@release_license@
 Group:		Development/Languages/PHP
 Source0:	http://@master_server@/get/%{_pearname}-%{version}.tgz
@@ -43,7 +42,7 @@ In PEAR status of this package is: %{_status}.
 Summary:	Tests for PEAR::%{_pearname}
 Summary(pl):	Testy dla PEAR::%{_pearname}
 Group:		Development/Languages/PHP
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
 AutoReq:	no
 AutoProv:	no
 
