@@ -1,0 +1,170 @@
+--- ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:30:48.906860547 +0200
++++ ./usr/share/pear/PEAR/Command/Packaging.php	2006-11-08 20:32:57.349746042 +0200
+@@ -98,7 +98,7 @@
+     var $output;
+     
+     // The default format of the RPM package name
+-    var $_rpm_pkgname_format = '%C::%s';
++    var $_rpm_pkgname_format = 'php-pear-%s';
+     
+     // The default format of various dependencies that might be generated in the
+     // spec file.
+@@ -113,7 +113,7 @@
+     // the rpm-pkgname format string, with the addition of:
+     // %v = package version
+     // %P = use the same as whatever rpm_pkgname_format is set to be
+-    var $_rpm_specname_format = '%P-%v.spec';
++    var $_rpm_specname_format = '%P.spec';
+ 
+     /**
+      * PEAR_Command_Packaging constructor.
+@@ -234,17 +234,19 @@
+         $info['doc_files'] = array();
+         $info['doc_files_relocation_script'] = '';
+         $info['doc_files_statement'] = '';
+-        $info['files'] = '';
++        $info['files'] = array();
++		$info['test_files'] = array();
++		$info['data_files'] = array();
+         $info['package2xml'] = '';
+         $info['rpm_package'] = $this->_getRPMName($pf->getPackage(), $pf->getChannel());
+         $info['pear_rpm_name'] = $this->_getRPMName('PEAR', 'pear.php.net', 'pkgdep');
+-        $info['description'] = wordwrap($info['description']);
++        $info['description'] = wordwrap($info['description'], 70);
+         
+         // Hook to support virtual provides, where the dependency name differs
+         // from the package name
+         $rpmdep = $this->_getRPMName($pf->getPackage(), $pf->getChannel(), 'pkgdep');
+         if (!empty($rpmdep) && $rpmdep != $info['rpm_package']) {
+-            $info['extra_headers'] .= "Provides: $rpmdep = " . $pf->getVersion(). "\n";
++            $info['extra_headers'] .= "Provides:\t$rpmdep = " . $pf->getVersion(). "\n";
+         }
+         
+         $srcfiles = 0;
+@@ -253,44 +255,49 @@
+                 continue;
+             }
+             $name = preg_replace('![/:\\\\]!', '/', $name);
+-            if ($attr['role'] == 'doc') {
+-                $info['doc_files'][] .= $name;
++			$name = str_replace('\\', '/', $name); ## XXX is this really neccessary?
++
+             // Map role to the rpm vars
+-            } else {
+-                $c_prefix = '%{_libdir}/php/pear';
+-                switch ($attr['role']) {
+-                    case 'php':
+-                        $prefix = $c_prefix;
+-                    break;
+-                    case 'ext':
+-                        $prefix = '%{_libdir}/php';
+-                    break; // XXX good place?
+-                    case 'src':
+-                        $srcfiles++;
+-                        $prefix = '%{_includedir}/php';
+-                    break; // XXX good place?
+-                    case 'test':
+-                        $prefix = "$c_prefix/tests/" . $pf->getPackage();
+-                    break;
+-                    case 'data':
+-                        $prefix = "$c_prefix/data/" . $pf->getPackage();
+-                    break;
+-                    case 'script':
+-                        $prefix = '%{_bindir}';
+-                    break;
+-                    default: // non-standard roles
+-                        $prefix = "$c_prefix/$attr[role]/" . $pf->getPackage();
+-                        $info['extra_config'] .=
+-                        "\n        -d {$attr[role]}_dir=$c_prefix/{$attr[role]} \\";
+-                        $this->ui->outputData('WARNING: role "' . $attr['role'] . '" used, ' .
+-                            'and will be installed in "' . $c_prefix . '/' . $attr['role'] .
+-                            '/' . $pf->getPackage() .
+-                            ' - hand-edit the final .spec if this is wrong', $command);
+-                    break;
+-                }
+-                $name = str_replace('\\', '/', $name);
+-                $info['files'] .= "$prefix/$name\n";
+-            }
++			$c_prefix = '%{php_pear_dir}';
++			switch ($attr['role']) {
++				case 'doc':
++					$info['doc_files'][] = $name;
++				break;
++				case 'php':
++					$info['files'][] = "$c_prefix/$name";
++				break;
++				case 'ext':
++					$prefix = '%{extensionsdir}';
++					$info['files'][] = "$prefix/$name";
++				break; // XXX good place?
++				case 'src':
++					$srcfiles++;
++					$prefix = '%{_includedir}/php';
++					$info['files'][] = "$prefix/$name";
++				break; // XXX good place?
++				case 'test':
++					$prefix = "$c_prefix/tests/" . $pf->getPackage();
++					$info['test_files'][] = "$prefix/$name";
++				break;
++				case 'data':
++					$prefix = "$c_prefix/data/" . $pf->getPackage();
++					$info['data_files'][] = "$prefix/$name";
++				break;
++				case 'script':
++					$prefix = '%{_bindir}';
++					$info['files'][] = "$prefix/$name";
++				break;
++				default: // non-standard roles
++					$prefix = "$c_prefix/$attr[role]/" . $pf->getPackage();
++					$info['extra_config'] .=
++					"\n        -d {$attr[role]}_dir=$c_prefix/{$attr[role]} \\";
++					$this->ui->outputData('WARNING: role "' . $attr['role'] . '" used, ' .
++						'and will be installed in "' . $c_prefix . '/' . $attr['role'] .
++						'/' . $pf->getPackage() .
++						' - hand-edit the final .spec if this is wrong', $command);
++					$info['files'][] = "$prefix/$name";
++				break;
++			}
+         }
+         
+         $ndocs = count($info['doc_files']);
+@@ -305,6 +312,10 @@
+             $info['doc_files_statement'] = '%doc ' . $info['doc_files'];
+             $info['doc_files_relocation_script'] = "mv %{buildroot}/docs .\n";
+         }
++
++        $info['files'] = count($info['files']) > 0 ? join("\n", $info['files']) : '';
++        $info['test_files'] = count($info['test_files']) > 0 ? join("\n", $info['test_files']) : '';
++        $info['data_files'] = count($info['data_files']) > 0 ? join("\n", $info['data_files']) : '';
+         
+         if ($srcfiles > 0) {
+             require_once 'OS/Guess.php';
+@@ -332,6 +343,11 @@
+         $info['version'] = $pf->getVersion();
+         $info['release_license'] = $pf->getLicense();
+         $info['release_state'] = $pf->getState();
++		@list($info['class'], $info['subclass']) = explode('_', $info['package'], 2);
++		if (empty($info['subclass'])) {
++			$info['subclass'] = '%{nil}';
++		}
++
+         if ($pf->getDeps()) {
+             if ($pf->getPackagexmlVersion() == '1.0') {
+                 $requires = $conflicts = array();
+@@ -381,10 +397,14 @@
+                     }
+                 }
+                 if (count($requires)) {
+-                    $info['extra_headers'] .= 'Requires: ' . implode(', ', $requires) . "\n";
++					foreach ($requires as $dep) {
++						$info['extra_headers'] .= "Requires:\t" . $dep . "\n";
++					}
+                 }
+                 if (count($conflicts)) {
+-                    $info['extra_headers'] .= 'Conflicts: ' . implode(', ', $conflicts) . "\n";
++					foreach ($conflicts as $dep) {
++						$info['extra_headers'] .= "Conflicts:\t" . $dep . "\n";
++					}
+                 }
+             } else {
+                 $info['package2xml'] = '2'; // tell the spec to use package2.xml
