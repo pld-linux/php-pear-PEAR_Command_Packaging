@@ -5,7 +5,6 @@
 %define		_subclass	Command_Packaging
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
-%include	%{_sourcedir}/php-pear-build-macros
 Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
 Summary(pl):	%{_pearname} - polecenie make-rpm-spec do zarz±dzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{_pearname}
