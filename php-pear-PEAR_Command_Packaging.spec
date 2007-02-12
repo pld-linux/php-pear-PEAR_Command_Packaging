@@ -6,7 +6,7 @@
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
 Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
-Summary(pl):	%{_pearname} - polecenie make-rpm-spec do zarz±dzania plikami .spec pakietów PEAR-a
+Summary(pl.UTF-8):   %{_pearname} - polecenie make-rpm-spec do zarzÄ…dzania plikami .spec pakietÃ³w PEAR-a
 Name:		php-pear-%{_pearname}
 Version:	0.1.2
 Release:	0.10
@@ -41,20 +41,20 @@ Enhanced features over the original PEAR "makerpm" command include:
 
 In PEAR status of this package is: %{_status}.
 
-%description -l pl
+%description -l pl.UTF-8
 To polecenie to ulepszona implementacja standardowego polecenia
-makerpm. Zawiera kilka rozszerzeñ czyni±cych j± du¿o bardziej
-elastycznym. W przysz³o¶ci mog± byæ dodane podobne funkcje dla innych
-zewnêtrznych mechanizmów pakietów.
+makerpm. Zawiera kilka rozszerzeÅ„ czyniÄ…cych jÄ… duÅ¼o bardziej
+elastycznym. W przyszÅ‚oÅ›ci mogÄ… byÄ‡ dodane podobne funkcje dla innych
+zewnÄ™trznych mechanizmÃ³w pakietÃ³w.
 
-Rozszerzone mo¿liwo¶ci w stosunku do oryginalnego polecenia PEAR-a
-"makerpm" obejmuj±:
-- mo¿liwo¶æ definiowania pola Release z linii poleceñ
+Rozszerzone moÅ¼liwoÅ›ci w stosunku do oryginalnego polecenia PEAR-a
+"makerpm" obejmujÄ…:
+- moÅ¼liwoÅ›Ä‡ definiowania pola Release z linii poleceÅ„
 - bardziej zaawansowane dostosowywanie nazwy generowanego pakietu
-- dodawanie wirtualnych Provides/Requires o innym formacie ni¿ format
+- dodawanie wirtualnych Provides/Requires o innym formacie niÅ¼ format
   nazwy pakietu
-- próbê inteligentnego rozró¿nienia miêdzy projektami PEAR a PECL przy
-  generowaniu pakietów
+- prÃ³bÄ™ inteligentnego rozrÃ³Å¼nienia miÄ™dzy projektami PEAR a PECL przy
+  generowaniu pakietÃ³w
 
 Ta klasa ma w PEAR status: %{_status}.
 
