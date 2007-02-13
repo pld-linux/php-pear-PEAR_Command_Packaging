@@ -6,7 +6,7 @@
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
 Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
-Summary(pl.UTF-8):   %{_pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
+Summary(pl.UTF-8):	%{_pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{_pearname}
 Version:	0.1.2
 Release:	0.10
