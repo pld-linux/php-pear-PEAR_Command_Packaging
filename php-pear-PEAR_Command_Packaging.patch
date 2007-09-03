@@ -286,7 +286,7 @@
  
          // remove the trailing newline
          $info['extra_headers'] = trim($info['extra_headers']);
-+        $info['have_optional_deps'] = count($info['optional']);
++        $info['have_optional_deps'] = @count($info['optional']);
 +        $info['optional'] = $info['have_optional_deps'] ? join(' ', $info['optional']) : '';
 +
 +		if (isset($info['optional-pkg']) && count($info['optional-pkg'])) {
