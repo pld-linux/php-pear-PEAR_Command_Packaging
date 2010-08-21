@@ -1,5 +1,11 @@
 # TODO
 # - finish ../SOURCES/php-pear-PEAR-rpmvars.patch merge
+# - merge conflict + upper to ">":
+#   Requires:   php-pear-Mail_Mime >= 1.4.0
+#   Conflicts:  php-pear-Mail_Mime = 1.4.0
+#   ->
+#   Requires:   php-pear-Mail_Mime > 1.4.0
+# - think something for creole and jargon deps (Mail_Queue)
 %include	/usr/lib/rpm/macros.php
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
@@ -13,7 +19,7 @@ Group:		Development/Languages/PHP
 Source0:	http://pear.php.net/get/%{_pearname}-%{version}.tgz
 # Source0-md5:	457881b46b8c42ba58cdb698872df2e6
 Source1:	php-pear-PEAR-template.spec
-Patch0:		php-pear-PEAR_Command_Packaging.patch
+Patch0:		%{name}.patch
 URL:		http://pear.php.net/package/PEAR_Command_Packaging/
 BuildRequires:	php-packagexml2cl
 BuildRequires:	php-pear-PEAR >= 1:1.4.3
