@@ -1,6 +1,18 @@
 --- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 02:49:57.027662427 +0300
-+++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 02:49:27.971832168 +0300
-@@ -121,7 +121,7 @@
++++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 12:49:51.257395974 +0300
+@@ -54,6 +54,11 @@
+                     'arg' => 'FILE',
+                     'doc' => 'Use FILE as RPM spec file template'
+                     ),
++                'output' => array(
++                    'shortopt' => 'o',
++                    'arg' => 'FILE',
++                    'doc' => 'Use FILE as output filename'
++                    ),
+                 'rpm-release' => array(
+                     'shortopt' => 'r',
+                     'arg' => 'RELEASE',
+@@ -121,7 +126,7 @@
       * $commands array above and in Packaging.xml so that it is consistent.
       */
      var $_rpm_pkgname_format = array(
@@ -9,7 +21,7 @@
          'chan' => 'php-channel-%c',
      );
      
-@@ -142,7 +142,8 @@
+@@ -142,7 +147,8 @@
      var $_rpm_depname_format = array(
          'pkg'  => '%P',
          'ext'  => 'php-%l',
@@ -19,7 +31,7 @@
          'chan' => 'php-channel(%n)',
      );
      
-@@ -159,7 +160,7 @@
+@@ -159,7 +165,7 @@
       * chan - used when generating a spec file for a channel
       */
      var $_rpm_specname_format = array(
@@ -28,7 +40,7 @@
          'chan' => 'php-channel-%c.spec'
      );
      
-@@ -182,11 +183,11 @@
+@@ -182,11 +188,11 @@
       * need to be listed here
       */
      var $_file_prefixes = array(
@@ -44,7 +56,7 @@
          'script' => '%{_bindir}',
          'cfg' => '%{_sysconfdir}/pear',
          'www' => '%{_datadir}/pear/www'
-@@ -197,7 +198,7 @@
+@@ -197,7 +203,7 @@
       * printf format. The first '%s' is the RPM header name followed by a colon,
       * the second is the header value.
       */
@@ -53,7 +65,7 @@
      
      // ------------------------------------------------------------------------
      // --- END DISTRIBUTION CONFIG
-@@ -247,6 +248,7 @@
+@@ -247,6 +253,7 @@
          'test_dir' => '',
          'test_files_statement' => '',// empty string, or list of test files
          'www_files_statement' => '', // empty string, or newline-separated list of files with "www" role
@@ -61,10 +73,21 @@
      );
      
      // The name of the template spec file to use
-@@ -335,10 +338,14 @@
+@@ -330,15 +337,24 @@
+         
+         // Initialise the RPM package/dep naming format options
+         $this->_initialiseNamingOptions($options);        
+-        
++
+         // Set the RPM release version
          if (isset($options['rpm-release'])) {
              $this->_output['release'] = $options['rpm-release'];
          }
++
++        // Pass output file in options
++        if (isset($options['output'])) {
++            $this->_output['output-file'] = $options['output'];
++        }
 +
 +        // PLD Linux specific. need source md5
 +        $this->_output['tarball'] = $source_file;
@@ -77,7 +100,7 @@
          // If source file ends in ".xml" we assume we are creating an RPM spec
          // for a channel rather than an actual package
          if (substr(strtolower($source_file), -4) == '.xml') {
-@@ -378,13 +385,40 @@
+@@ -378,13 +394,40 @@
      /**
       * Format an RPM header line to be added to the spec file
       * @param  string $header The name of the RPM header to be added 
@@ -87,7 +110,8 @@
       */
 -    function _formatRpmHeader($header, $value)
 +    function _formatRpmHeader($header, $values)
-+    {
+     {
+-        return sprintf($this->_spec_line_format, $header . ':', $value);
 +        // PLD Linux: we want values sorted and each on their line
 +        $values = (array )$values;
 +        sort($values);
@@ -96,7 +120,7 @@
 +            $ret .= sprintf($this->_spec_line_format, $header . ':', $value) . "\n";
 +        }
 +        return $ret;
-+    }
+     }
 +
 +
 +    /*
@@ -106,8 +130,7 @@
 +     * @return string Normalized version
 +     */
 +    function _formatRpmVersion($version)
-     {
--        return sprintf($this->_spec_line_format, $header . ':', $value);
++    {
 +
 +        // In PLD Linux alpha, beta, rc versions are noted in Release: not Version: tag.
 +        preg_match('/^(?P<version>[0-9.]+)(?P<extraversion>.*)$/', $version, $m);
@@ -116,12 +139,42 @@
 +        }
 +
 +        return $version;
-     }
++    }
 +
      
      /**
       * Replace a macro in the output spec file
-@@ -457,7 +491,7 @@
+@@ -410,16 +453,20 @@
+         } else {
+             $package_name = null;
+         }
+-        
++
+         // Work out the name of the output spec file
+-        $spec_file = $this->_getRPMNameFromFormat(
+-            $this->_rpm_specname_format[$type],
+-            $package_name,
+-            $this->_output['possible_channel'],
+-            $this->_output['channel_alias'],
+-            $this->_output['version']
+-        );
+-        
++        if (isset($this->_output['output-file'])) {
++            $spec_file = $this->_output['output-file'];
++        } else {
++            $spec_file = $this->_getRPMNameFromFormat(
++                $this->_rpm_specname_format[$type],
++                $package_name,
++                $this->_output['possible_channel'],
++                $this->_output['channel_alias'],
++                $this->_output['version']
++            );
++        }
++
+         // Write the actual file
+         $wp = fopen($spec_file, 'wb');
+         if (!$wp) {
+@@ -457,7 +504,7 @@
          
          $rpmdep = $this->_getRPMName(null, $cf->getName(), $cf->getAlias(), 'chandep');
          if (!empty($rpmdep) && $rpmdep != $this->_output['rpm_package']) {
@@ -130,7 +183,7 @@
          }
              
          // Channels don't really have version numbers; this will need to be
-@@ -564,7 +598,7 @@
+@@ -564,7 +611,7 @@
          
          // Set up some of the basic macros
          $this->_output['rpm_package'] = $this->_getRPMName($pf->getPackage(), $pf->getChannel(), null, 'pkg');
@@ -139,7 +192,7 @@
          $this->_output['summary'] = trim($package_info['summary']);
          $this->_output['possible_channel'] = $pf->getChannel();
          $this->_output['channel_alias'] = $this->_getChannelAlias($pf->getPackage(), $pf->getChannel());
-@@ -646,11 +680,13 @@
+@@ -646,11 +693,13 @@
              if (substr($this->_file_prefixes[$role], -2) == '%s') {
                  $this->_output[$macro_name] = str_replace('%s', $pf->getPackage(), $this->_file_prefixes[$role]);
              } else {
@@ -156,7 +209,7 @@
              }
          }
          $this->_output['files'] = trim($this->_output['files']);
-@@ -685,12 +721,10 @@
+@@ -685,12 +734,10 @@
  
      function _generatePackageDeps($pf)
      {
@@ -171,7 +224,7 @@
                  
                  if (!isset($dep['type']) || $dep['type'] == 'pkg') {
                      $type = 'pkgdep';
-@@ -725,21 +759,25 @@
+@@ -725,21 +772,25 @@
                  if ($dep['rel'] == 'has') {
                      // We use $package as the index to the $requires array to de-duplicate deps.
                      // Note that in the case of duplicate deps, versioned deps will "win" - see several lines down.
@@ -206,7 +259,7 @@
          } else {
              $this->_output['package2xml'] = '2'; // tell the spec to use package2.xml
              $deps = $pf->getDeps(true);
-@@ -842,10 +880,10 @@
+@@ -842,10 +893,10 @@
                          }
                      } else {
                          if (isset($dep['min'])) {
@@ -219,7 +272,7 @@
                          }
                          if (isset($dep['exclude'])) {
                              $ex = $dep['exclude'];
-@@ -864,18 +902,109 @@
+@@ -864,18 +915,109 @@
                  $a = $tar->extractInString('package2.xml');
                  $tar->popErrorHandling();
                  if ($a === null || PEAR::isError($a)) {
@@ -336,7 +389,7 @@
          }
      }
  
-@@ -927,6 +1056,11 @@
+@@ -927,7 +1069,12 @@
              case 'pkg':
                  return $this->_getRPMNameFromFormat($this->_rpm_pkgname_format['pkg'], $package_name, $chan_name, $chan_alias);
              case 'pkgdep':
@@ -349,3 +402,4 @@
 +                }
                  // let it drop through...
              default:
+                 if (isset($this->_rpm_depname_format[$type]) && !empty($this->_rpm_depname_format[$type])) {
