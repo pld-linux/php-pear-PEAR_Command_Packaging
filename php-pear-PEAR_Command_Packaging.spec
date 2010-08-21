@@ -1,8 +1,6 @@
 # TODO
 # - finish ../SOURCES/php-pear-PEAR-rpmvars.patch merge
 %include	/usr/lib/rpm/macros.php
-%define		_class		PEAR
-%define		_subclass	Command_Packaging
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
 Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
@@ -17,11 +15,12 @@ Source0:	http://pear.php.net/get/%{_pearname}-%{version}.tgz
 Source1:	php-pear-PEAR-template.spec
 Patch0:		php-pear-PEAR_Command_Packaging.patch
 URL:		http://pear.php.net/package/PEAR_Command_Packaging/
-BuildRequires:	php-pear-PEAR
+BuildRequires:	php-packagexml2cl
+BuildRequires:	php-pear-PEAR >= 1:1.4.3
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
-BuildRequires:	rpmbuild(macros) >= 1.300
+BuildRequires:	rpmbuild(macros) >= 1.571
 Requires:	php-pear
-Requires:	php-pear-PEAR >= 1:1.4.7
+Requires:	php-pear-PEAR >= 1:1.4.3
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -61,6 +60,11 @@ Ta klasa ma w PEAR status: %{_status}.
 %prep
 %pear_package_setup
 %patch0 -p1
+
+rm docs/PEAR_Command_Packaging/LICENSE
+
+%build
+packagexml2cl package.xml > ChangeLog
 
 %install
 rm -rf $RPM_BUILD_ROOT
