@@ -1,5 +1,5 @@
---- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 02:49:57.027662427 +0300
-+++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 12:49:51.257395974 +0300
+--- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 12:49:51.257395974 +0300
++++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 15:27:50.933114597 +0300
 @@ -54,6 +54,11 @@
                      'arg' => 'FILE',
                      'doc' => 'Use FILE as RPM spec file template'
@@ -120,7 +120,7 @@
 +            $ret .= sprintf($this->_spec_line_format, $header . ':', $value) . "\n";
 +        }
 +        return $ret;
-     }
++    }
 +
 +
 +    /*
@@ -139,7 +139,7 @@
 +        }
 +
 +        return $version;
-+    }
+     }
 +
      
      /**
@@ -209,22 +209,40 @@
              }
          }
          $this->_output['files'] = trim($this->_output['files']);
-@@ -685,12 +734,10 @@
+@@ -685,12 +734,11 @@
  
      function _generatePackageDeps($pf)
      {
 -        $requires = $conflicts = array();
 +        $buildrequires = $requires = $conflicts = $suggests = array();
          if ($pf->getPackagexmlVersion() == '1.0') {
-             foreach ($pf->getDeps() as $dep) {
+-            foreach ($pf->getDeps() as $dep) {
 -                if (isset($dep['optional']) && $dep['optional'] == 'yes') {
 -                    continue;
 -                }
++            $deps = $pf->getDeps();
++            foreach ($deps as $dep) {
 +                $optional = isset($dep['optional']) && $dep['optional'] == 'yes';
                  
                  if (!isset($dep['type']) || $dep['type'] == 'pkg') {
                      $type = 'pkgdep';
-@@ -725,21 +772,25 @@
+@@ -698,8 +746,14 @@
+                     $type = $dep['type'];
+                 }
+                 
+-                if (!isset($dep['channel'])) $dep['channel'] = null;
+                 if (!isset($dep['name'])) $dep['name'] = ''; //e.g. "php" dep
++                if (!isset($dep['channel'])) {
++                    // we need to figure out channel as pecl packages are might
++                    // be named differently than pear packages.
++                    $chan_alias = $this->_getChannelAlias($dep['name']);
++                    $reg = &$this->config->getRegistry();
++                    $dep['channel'] = $reg->channelName($chan_alias);
++                }
+                 
+                 // $package contains the *dependency name* here, which may or may
+                 // not be the same as the package name
+@@ -725,21 +779,25 @@
                  if ($dep['rel'] == 'has') {
                      // We use $package as the index to the $requires array to de-duplicate deps.
                      // Note that in the case of duplicate deps, versioned deps will "win" - see several lines down.
@@ -259,7 +277,7 @@
          } else {
              $this->_output['package2xml'] = '2'; // tell the spec to use package2.xml
              $deps = $pf->getDeps(true);
-@@ -842,10 +893,10 @@
+@@ -842,10 +900,10 @@
                          }
                      } else {
                          if (isset($dep['min'])) {
@@ -272,7 +290,7 @@
                          }
                          if (isset($dep['exclude'])) {
                              $ex = $dep['exclude'];
-@@ -864,18 +915,109 @@
+@@ -864,18 +922,109 @@
                  $a = $tar->extractInString('package2.xml');
                  $tar->popErrorHandling();
                  if ($a === null || PEAR::isError($a)) {
@@ -293,9 +311,7 @@
 +            if (isset($deps['required']['extension'])) {
 +                if (!isset($deps['required']['extension'][0])) {
 +                    $deps['required']['extension'] = array($deps['required']['extension']);
-                 }
--                if (count($conflicts)) {
--                    $this->_output['extra_headers'] .= $this->_formatRpmHeader('Conflicts', implode(', ', $conflicts)) . "\n";
++                }
 +                foreach ((array )$deps['required']['extension'] as $dep) {
 +                    if (!isset($dep['channel'])) $dep['channel'] = null;
 +                    // $package contains the *dependency name* here, which may or may
@@ -307,13 +323,15 @@
 +                    }
 +
 +                    $requires[$package] = $package;
-                 }
-             }
++                }
++            }
 +
 +            if (isset($deps['required']['subpackage'])) {
 +                if (!isset($deps['required']['subpackage'][0])) {
 +                    $deps['required']['subpackage'] = array($deps['required']['subpackage']);
-+                }
+                 }
+-                if (count($conflicts)) {
+-                    $this->_output['extra_headers'] .= $this->_formatRpmHeader('Conflicts', implode(', ', $conflicts)) . "\n";
 +                foreach ($deps['required']['subpackage'] as $dep) {
 +                    if (!isset($dep['channel'])) $dep['channel'] = null;
 +
@@ -327,8 +345,8 @@
 +
 +                    $requires[$package] = $package;
 +                    // XXX: should be more complese like above with ranges, etc
-+                }
-+            }
+                 }
+             }
 +
 +            if (isset($deps['optional']['package'])) {
 +                if (!isset($deps['optional']['package'][0])) {
@@ -389,7 +407,7 @@
          }
      }
  
-@@ -927,7 +1069,12 @@
+@@ -927,7 +1076,12 @@
              case 'pkg':
                  return $this->_getRPMNameFromFormat($this->_rpm_pkgname_format['pkg'], $package_name, $chan_name, $chan_alias);
              case 'pkgdep':
