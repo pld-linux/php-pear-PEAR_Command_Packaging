@@ -5,8 +5,6 @@
 #   Conflicts:  php-pear-Mail_Mime = 1.4.0
 #   ->
 #   Requires:   php-pear-Mail_Mime > 1.4.0
-# - think something for creole and jargon deps (Mail_Queue)
-#   seems we name such external pkgs (non-pear pkgs) as php-<pkgname>
 # - add minimum php version used (so that the epoch does not go to nonsense for
 #   older php's, yet think that could blow up php4 only pkgs)
 %include	/usr/lib/rpm/macros.php
@@ -16,7 +14,7 @@ Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for P
 Summary(pl.UTF-8):	%{_pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{_pearname}
 Version:	0.2.0
-Release:	4
+Release:	5
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pear.php.net/get/%{_pearname}-%{version}.tgz
