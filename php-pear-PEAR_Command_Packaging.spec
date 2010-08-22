@@ -1,6 +1,6 @@
 # TODO
 # - finish ../SOURCES/php-pear-PEAR-rpmvars.patch merge
-# - merge conflict + upper to ">":
+# - merge conflict + upper to ">": (Mail_mimeDecode)
 #   Requires:   php-pear-Mail_Mime >= 1.4.0
 #   Conflicts:  php-pear-Mail_Mime = 1.4.0
 #   ->
