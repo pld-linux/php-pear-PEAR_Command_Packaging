@@ -1,5 +1,5 @@
---- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-21 15:27:50.933114597 +0300
-+++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 11:54:43.779087274 +0300
+--- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 11:54:43.779087274 +0300
++++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 12:06:43.302565187 +0300
 @@ -54,6 +54,11 @@
                      'arg' => 'FILE',
                      'doc' => 'Use FILE as RPM spec file template'
@@ -125,7 +125,7 @@
 +            $ret .= sprintf($this->_spec_line_format, $header . ':', $value) . "\n";
 +        }
 +        return $ret;
-+    }
+     }
 +
 +
 +    /*
@@ -144,7 +144,7 @@
 +        }
 +
 +        return $version;
-     }
++    }
 +
      
      /**
@@ -307,7 +307,9 @@
 +                    // PLD linux hack: include epoch for PEAR package
 +                    $version = "1:{$version}";
 +                    $buildrequires[$this->_output['pear_rpm_name']] = $this->_output['pear_rpm_name'] . ' >= ' . $version;
-+                }
+                 }
+-                if (count($requires)) {
+-                    $this->_output['extra_headers'] .= $this->_formatRpmHeader('Requires', implode(', ', $requires)) . "\n";
 +            }
 +
 +            if (isset($deps['required']['extension'])) {
@@ -351,9 +353,7 @@
 +            if (isset($deps['optional']['package'])) {
 +                if (!isset($deps['optional']['package'][0])) {
 +                    $deps['optional']['package'] = array($deps['optional']['package']);
-                 }
--                if (count($requires)) {
--                    $this->_output['extra_headers'] .= $this->_formatRpmHeader('Requires', implode(', ', $requires)) . "\n";
++                }
 +                foreach ($deps['optional']['package'] as $dep) {
 +                    if (!isset($dep['channel'])) $dep['channel'] = null;
 +
@@ -411,7 +411,7 @@
 +        }
      }
  
-@@ -927,7 +1077,14 @@
+@@ -927,9 +1077,21 @@
              case 'pkg':
                  return $this->_getRPMNameFromFormat($this->_rpm_pkgname_format['pkg'], $package_name, $chan_name, $chan_alias);
              case 'pkgdep':
@@ -426,4 +426,11 @@
 +                }
                  // let it drop through...
              default:
++                // PLD Linux: sanitize gtk2 ext name.
++                // http://bugs.php.net/bug.php?id=52663
++                if ($type == 'ext' && $package_name == 'php-gtk') {
++                    $package_name = 'gtk2';
++                }
                  if (isset($this->_rpm_depname_format[$type]) && !empty($this->_rpm_depname_format[$type])) {
+                     return $this->_getRPMNameFromFormat($this->_rpm_depname_format[$type], $package_name, $chan_name, $chan_alias);
+                 }
