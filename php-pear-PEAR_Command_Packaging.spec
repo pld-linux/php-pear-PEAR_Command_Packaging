@@ -6,6 +6,9 @@
 #   ->
 #   Requires:   php-pear-Mail_Mime > 1.4.0
 # - think something for creole and jargon deps (Mail_Queue)
+#   seems we name such external pkgs (non-pear pkgs) as php-<pkgname>
+# - add minimum php version used (so that the epoch does not go to nonsense for
+#   older php's, yet think that could blow up php4 only pkgs)
 %include	/usr/lib/rpm/macros.php
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
