@@ -7,6 +7,11 @@
 #   Requires:   php-pear-Mail_Mime > 1.4.0
 # - add minimum php version used (so that the epoch does not go to nonsense for
 #   older php's, yet think that could blow up php4 only pkgs)
+# - handle registry subdirs:
+#  %{php_pear_dir}/.registry/*.reg
+#  %{php_pear_dir}/.registry/.channel.*/*.reg
+# - handle php-PKGNAME names (actual non pear packages)
+# - php-lc(<CHANNEL_ALIAS>)-<PKGNAME>?
 %include	/usr/lib/rpm/macros.php
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging
