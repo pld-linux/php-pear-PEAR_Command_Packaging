@@ -11,7 +11,7 @@
 #  %{php_pear_dir}/.registry/*.reg
 #  %{php_pear_dir}/.registry/.channel.*/*.reg
 # - handle php-PKGNAME names (actual non pear packages)
-# - php-lc(<CHANNEL_ALIAS>)-<PKGNAME>?
+# - php-lc(<CHANNEL_ALIAS>)-<PKGNAME>
 %include	/usr/lib/rpm/macros.php
 %define		_status		alpha
 %define		_pearname	PEAR_Command_Packaging

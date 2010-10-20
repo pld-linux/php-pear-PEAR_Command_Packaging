@@ -1,5 +1,5 @@
---- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 11:54:43.779087274 +0300
-+++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 12:06:43.302565187 +0300
+--- PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-08-22 12:06:43.302565187 +0300
++++ PEAR_Command_Packaging-0.2.0/usr/share/pear/PEAR/Command/Packaging.php	2010-10-20 09:36:32.428771477 +0300
 @@ -54,6 +54,11 @@
                      'arg' => 'FILE',
                      'doc' => 'Use FILE as RPM spec file template'
@@ -17,7 +17,7 @@
       */
      var $_rpm_pkgname_format = array(
 -        'pkg'  => '%C::%s',
-+        'pkg'  => 'php-%s',
++        'pkg'  => 'php-%c-%s',
          'chan' => 'php-channel-%c',
      );
 -    
@@ -25,9 +25,12 @@
      /**
       * The default format of various dependencies that might be generated in the
       * spec file. The currently-handled dependency types are:
-@@ -142,7 +147,9 @@
+@@ -140,9 +145,11 @@
+      * %P   = use the same as whatever rpm_pkgname_format is set to be
+      */
      var $_rpm_depname_format = array(
-         'pkg'  => '%P',
+-        'pkg'  => '%P',
++        'pkg'  => 'php-%c-%s',
          'ext'  => 'php-%l',
 -        'php'  => 'php',
 +        'pear-pkg' => 'php-pear-%s',
