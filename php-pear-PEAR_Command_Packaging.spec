@@ -7,17 +7,19 @@
 #   Requires:   php-pear-Mail_Mime > 1.4.0
 # - add minimum php version used (so that the epoch does not go to nonsense for
 #   older php's, yet think that could blow up php4 only pkgs)
+# - if external channel not installed, channel alias can not be resolved
+#   and deps get generated with full name: php-pear.docblox-project.org-DocBlox
+%define		status		alpha
+%define		pearname	PEAR_Command_Packaging
 %include	/usr/lib/rpm/macros.php
-%define		_status		alpha
-%define		_pearname	PEAR_Command_Packaging
-Summary:	%{_pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
-Summary(pl.UTF-8):	%{_pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
-Name:		php-pear-%{_pearname}
+Summary:	%{pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
+Summary(pl.UTF-8):	%{pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
+Name:		php-pear-%{pearname}
 Version:	0.2.0
 Release:	7
 License:	PHP 3.01
 Group:		Development/Languages/PHP
-Source0:	http://pear.php.net/get/%{_pearname}-%{version}.tgz
+Source0:	http://pear.php.net/get/%{pearname}-%{version}.tgz
 # Source0-md5:	457881b46b8c42ba58cdb698872df2e6
 Source1:	php-pear-PEAR-template.spec
 Patch0:		%{name}.patch
@@ -25,7 +27,7 @@ URL:		http://pear.php.net/package/PEAR_Command_Packaging/
 BuildRequires:	php-packagexml2cl
 BuildRequires:	php-pear-PEAR >= 1:1.4.3
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
-BuildRequires:	rpmbuild(macros) >= 1.571
+BuildRequires:	rpmbuild(macros) >= 1.580
 Requires:	php-pear
 Requires:	php-pear-PEAR >= 1:1.4.3
 BuildArch:	noarch
@@ -45,7 +47,7 @@ Enhanced features over the original PEAR "makerpm" command include:
 - tries to intelligently distinguish between PEAR and PECL when
   generating packages
 
-In PEAR status of this package is: %{_status}.
+In PEAR status of this package is: %{status}.
 
 %description -l pl.UTF-8
 To polecenie to ulepszona implementacja standardowego polecenia
@@ -62,7 +64,7 @@ Rozszerzone możliwości w stosunku do oryginalnego polecenia PEAR-a
 - próbę inteligentnego rozróżnienia między projektami PEAR a PECL przy
   generowaniu pakietów
 
-Ta klasa ma w PEAR status: %{_status}.
+Ta klasa ma w PEAR status: %{status}.
 
 %prep
 %pear_package_setup
@@ -78,8 +80,8 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{php_pear_dir}
 %pear_package_install
 
-sed -e '/^\$''Log: /,$d' %{SOURCE1} > $RPM_BUILD_ROOT%{php_pear_dir}/data/%{_pearname}/template.spec
-echo '$''Log: $' >> $RPM_BUILD_ROOT%{php_pear_dir}/data/%{_pearname}/template.spec
+sed -e '/^\$''Log: /,$d' %{SOURCE1} > $RPM_BUILD_ROOT%{php_pear_dir}/data/%{pearname}/template.spec
+echo '$''Log: $' >> $RPM_BUILD_ROOT%{php_pear_dir}/data/%{pearname}/template.spec
 
 %clean
 rm -rf $RPM_BUILD_ROOT
