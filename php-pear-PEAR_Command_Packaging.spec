@@ -16,7 +16,7 @@ Summary:	%{pearname} - make-rpm-spec command for managing RPM .spec files for PE
 Summary(pl.UTF-8):	%{pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{pearname}
 Version:	0.2.0
-Release:	7
+Release:	8
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://pear.php.net/get/%{pearname}-%{version}.tgz
@@ -80,8 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{php_pear_dir}
 %pear_package_install
 
-sed -e '/^\$''Log: /,$d' %{SOURCE1} > $RPM_BUILD_ROOT%{php_pear_dir}/data/%{pearname}/template.spec
-echo '$''Log: $' >> $RPM_BUILD_ROOT%{php_pear_dir}/data/%{pearname}/template.spec
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{php_pear_dir}/data/%{pearname}/template.spec
 
 %clean
 rm -rf $RPM_BUILD_ROOT
