@@ -19,8 +19,8 @@ Version:	0.3.0
 Release:	1
 License:	PHP 3.01
 Group:		Development/Languages/PHP
-Source0:	http://pear.php.net/get/%{pearname}-%{version}.tgz
-# Source0-md5:	457881b46b8c42ba58cdb698872df2e6
+Source0:	http://download.pear.php.net/package/%{pearname}-%{version}.tgz
+# Source0-md5:	98bb036ed762c1b99d3db0e6f8a89306
 Source1:	php-pear-PEAR-template.spec
 Patch0:		%{name}.patch
 URL:		http://pear.php.net/package/PEAR_Command_Packaging/
