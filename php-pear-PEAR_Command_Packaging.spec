@@ -16,7 +16,7 @@ Summary:	%{pearname} - make-rpm-spec command for managing RPM .spec files for PE
 Summary(pl.UTF-8):	%{pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{pearname}
 Version:	0.3.0
-Release:	1
+Release:	0.1
 License:	PHP 3.01
 Group:		Development/Languages/PHP
 Source0:	http://download.pear.php.net/package/%{pearname}-%{version}.tgz
