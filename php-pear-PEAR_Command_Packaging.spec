@@ -11,7 +11,6 @@
 #   and deps get generated with full name: php-pear.docblox-project.org-DocBlox
 %define		status		alpha
 %define		pearname	PEAR_Command_Packaging
-%include	/usr/lib/rpm/macros.php
 Summary:	%{pearname} - make-rpm-spec command for managing RPM .spec files for PEAR packages
 Summary(pl.UTF-8):	%{pearname} - polecenie make-rpm-spec do zarządzania plikami .spec pakietów PEAR-a
 Name:		php-pear-%{pearname}
