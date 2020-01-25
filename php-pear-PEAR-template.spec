@@ -1,4 +1,3 @@
-%include	/usr/lib/rpm/macros.php
 %define		_class		@class@
 %define		_subclass	@subclass@
 %define		_status		@release_state@
